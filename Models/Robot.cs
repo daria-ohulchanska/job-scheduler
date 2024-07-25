@@ -1,4 +1,4 @@
-﻿namespace JodScheduler
+﻿namespace JobScheduler.Models
 {
     public class Robot : IRobot
     {
@@ -11,10 +11,10 @@
             Id = id;
         }
 
-        public void Start() => 
+        public void Start() =>
             IsActive = true;
 
-        public void Stop() => 
+        public void Stop() =>
             IsActive = false;
     }
 }

@@ -1,4 +1,6 @@
-﻿namespace JodScheduler
+﻿using JobScheduler.Models;
+
+namespace JobScheduler.Services
 {
     public interface IScheduler
     {

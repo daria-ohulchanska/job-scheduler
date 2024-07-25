@@ -1,4 +1,5 @@
-﻿using JodScheduler;
+﻿using JobScheduler.Models;
+using JodScheduler;
 
 var robotsCount = 2;
 List<Robot> robots = new();

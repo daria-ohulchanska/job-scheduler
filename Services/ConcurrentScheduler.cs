@@ -1,6 +1,7 @@
 ﻿using System.Collections.Concurrent;
+using JobScheduler.Models;
 
-namespace JodScheduler
+namespace JobScheduler.Services
 {
     public class ConcurrentScheduler : IScheduler
     {
