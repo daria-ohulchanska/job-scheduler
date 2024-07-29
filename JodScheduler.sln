@@ -3,9 +3,9 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 17
 VisualStudioVersion = 17.10.35027.167
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "JobScheduler", "JobScheduler.csproj", "{CE44F58C-B445-48C6-B706-02344E1A6531}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "JobScheduler", "src\JobScheduler\JobScheduler.csproj", "{CE44F58C-B445-48C6-B706-02344E1A6531}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "JobScheduler.Tests", "..\JobScheduler.Tests\JobScheduler.Tests.csproj", "{AC540C25-1896-48E1-A1BD-9E6DF01F623C}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "JobScheduler.Tests", "src\JobScheduler.Tests\JobScheduler.Tests.csproj", "{AC540C25-1896-48E1-A1BD-9E6DF01F623C}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
