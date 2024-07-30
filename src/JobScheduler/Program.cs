@@ -1,13 +1,7 @@
 ﻿using JobScheduler.Models;
 using JobScheduler.Services.Scheduler;
 
-var robotsCount = 2;
-List<Robot> robots = new();
-
-for (int i = 0; i <= robotsCount; i++)
-    robots.Add(new Robot(i));
-
-var scheduler = new ConcurrentScheduler(robots);
+var scheduler = new ConcurrentScheduler(capacity: 2);
 var order = -1;
 
 void Schedule(Dish dish, double seconds)

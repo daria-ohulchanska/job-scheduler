@@ -6,22 +6,28 @@ namespace JobScheduler.Services.Scheduler
     public class ConcurrentScheduler : IScheduler
     {
         private readonly object _sync = new();
-        private readonly IEnumerable<IRobot> _robots;
+        private readonly ConcurrentQueue<int> _free;
         private readonly ConcurrentQueue<IJob> _jobs;
         private readonly Task?[] _running;
 
-        public ConcurrentScheduler(IEnumerable<IRobot> robots)
+        public ConcurrentScheduler(int? capacity)
         {
-            _robots = robots;
+            if (capacity <= 0)
+                throw new ArgumentOutOfRangeException(
+                    nameof(capacity), capacity, "Cannot initialise scheduler: capacity must be positive");
+
+            _running = new Task?[capacity ?? Environment.ProcessorCount];
             _jobs = new();
-            _running = new Task?[robots.Count()];
+            _free = new();
+
+            for (var index = 0; index < capacity; ++index)
+                _free.Enqueue(index);
         }
 
         public void Schedule(IJob job)
         {
-            var availableRobot = _robots.FirstOrDefault(x => !x.IsActive);
-            if (availableRobot != null)
-                _running[availableRobot.Id] = Task.Run(() => Run(job, availableRobot));
+            if (_free.TryDequeue(out var index))
+                _running[index] = Task.Run(() => Run(job, index));
             else
                 _jobs.Enqueue(job);
         }
@@ -38,18 +44,15 @@ namespace JobScheduler.Services.Scheduler
             Task.WaitAll(tasks);
         }
 
-        private void Run(IJob job, IRobot robot)
+        private void Run(IJob job, int index)
         {
-            robot.Start();
-
             while (true)
             {
                 job.Run();
 
                 if (!_jobs.TryDequeue(out job))
                 {
-                    _running[robot.Id] = null;
-                    robot.Stop();
+                    _running[index] = null;
                     return;
                 }
             }
