@@ -5,6 +5,8 @@ namespace JobScheduler.Services.Scheduler
 {
     public class ConcurrentScheduler : IScheduler
     {
+        public const int MaxCapacity = 1024;
+
         private readonly object _sync = new();
         private readonly ConcurrentQueue<int> _free;
         private readonly ConcurrentQueue<IJob> _jobs;
@@ -15,6 +17,10 @@ namespace JobScheduler.Services.Scheduler
             if (capacity <= 0)
                 throw new ArgumentOutOfRangeException(
                     nameof(capacity), capacity, "Cannot initialise scheduler: capacity must be positive");
+
+            if (capacity > MaxCapacity)
+                throw new ArgumentOutOfRangeException(
+                    nameof(capacity), capacity, $"Cannot initialise scheduler: maximum possible capacity is {MaxCapacity}");
 
             _running = new Task?[capacity ?? Environment.ProcessorCount];
             _jobs = new();
