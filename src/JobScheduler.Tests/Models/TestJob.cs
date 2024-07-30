@@ -2,7 +2,7 @@
 
 namespace JobScheduler.Tests.Models
 {
-    public class TestJob : IJob
+    public class TestJob : IJob, IDisposable
     {
         public enum State { Pending, Running, Finished }
 

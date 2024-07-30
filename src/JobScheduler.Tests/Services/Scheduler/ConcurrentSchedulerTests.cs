@@ -1,7 +1,6 @@
 using JobScheduler.Services.Scheduler;
 using JobScheduler.Tests.Models;
 using FluentAssertions;
-using JobScheduler.Models;
 
 namespace JobScheduler.Tests.Services.Scheduler
 {
@@ -10,12 +9,7 @@ namespace JobScheduler.Tests.Services.Scheduler
         [Fact]
         public void StubJobTest()
         {
-            var robots = new List<IRobot>(){
-                new Robot(1),
-                new Robot(2)
-            };
-
-            var scheduler = new ConcurrentScheduler(robots);
+            var scheduler = new ConcurrentScheduler(capacity: 2);
 
             var job0 = new TestJob();
             var job1 = new TestJob();
@@ -50,7 +44,5 @@ namespace JobScheduler.Tests.Services.Scheduler
             job1.CurrentState.Should().Be(TestJob.State.Finished);
             job2.CurrentState.Should().Be(TestJob.State.Finished);
         }
-
-
     }
 }
