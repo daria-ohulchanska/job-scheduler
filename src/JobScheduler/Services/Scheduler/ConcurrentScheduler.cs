@@ -1,5 +1,4 @@
-﻿using System.Collections.Concurrent;
-using JobScheduler.Models;
+﻿using JobScheduler.Models;
 
 namespace JobScheduler.Services.Scheduler
 {
@@ -7,10 +6,16 @@ namespace JobScheduler.Services.Scheduler
     {
         public const int MaxCapacity = 1024;
 
+        private const int Running = 0;
+        private const int Stopped = 1;
+
         private readonly object _sync = new();
-        private readonly ConcurrentQueue<int> _free;
-        private readonly ConcurrentQueue<IJob> _jobs;
+
+        private readonly Queue<int> _free;
+        private readonly Queue<IJob> _jobs;
         private readonly Task?[] _running;
+
+        private int _state = Running;
 
         public ConcurrentScheduler(int? capacity)
         {
@@ -32,14 +37,25 @@ namespace JobScheduler.Services.Scheduler
 
         public void Schedule(IJob job)
         {
-            if (_free.TryDequeue(out var index))
-                _running[index] = Task.Run(() => Run(job, index));
-            else
-                _jobs.Enqueue(job);
+            lock (_sync)
+            {
+                if (_state != Running)
+                    throw new InvalidOperationException(
+                        "Cannot run a job: the scheduler is not running");
+
+                if (_free.TryDequeue(out var index))
+                    _running[index] = Task.Run(() => Run(job, index));
+                else
+                    _jobs.Enqueue(job);
+            }
         }
 
         public void Stop()
         {
+            if (Interlocked.Exchange(ref _state, Stopped) == Stopped)
+                throw new InvalidOperationException(
+                    "Cannot stop the scheduler: it is already stopped");
+
             Task[] tasks;
 
             lock (_sync)
@@ -56,10 +72,13 @@ namespace JobScheduler.Services.Scheduler
             {
                 job.Run();
 
-                if (!_jobs.TryDequeue(out job))
+                lock (_sync)
                 {
-                    _running[index] = null;
-                    return;
+                    if (!_jobs.TryDequeue(out job))
+                    {
+                        _running[index] = null;
+                        return;
+                    }
                 }
             }
         }
