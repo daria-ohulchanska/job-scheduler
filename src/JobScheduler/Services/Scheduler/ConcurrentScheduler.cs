@@ -10,10 +10,9 @@ namespace JobScheduler.Services.Scheduler
         private const int Stopped = 1;
 
         private readonly object _sync = new();
+        private readonly SemaphoreSlim _semaphore;
 
-        private readonly Queue<int> _free;
         private readonly Queue<IJob> _jobs;
-        private readonly Task?[] _running;
 
         private int _state = Running;
 
@@ -27,12 +26,11 @@ namespace JobScheduler.Services.Scheduler
                 throw new ArgumentOutOfRangeException(
                     nameof(capacity), capacity, $"Cannot initialise scheduler: maximum possible capacity is {MaxCapacity}");
 
-            _running = new Task?[capacity ?? Environment.ProcessorCount];
-            _jobs = new();
-            _free = new();
+            var degreeOfParallelism = capacity ?? Environment.ProcessorCount;
 
-            for (var index = 0; index < capacity; ++index)
-                _free.Enqueue(index);
+            _semaphore = new SemaphoreSlim(degreeOfParallelism, degreeOfParallelism);
+
+            _jobs = new();
         }
 
         public void Schedule(IJob job)
@@ -43,10 +41,7 @@ namespace JobScheduler.Services.Scheduler
                     throw new InvalidOperationException(
                         "Cannot run a job: the scheduler is not running");
 
-                if (_free.TryDequeue(out var index))
-                    _running[index] = Task.Run(() => Run(job, index));
-                else
-                    _jobs.Enqueue(job);
+                Task.Run(async () => await RunAsync(job));
             }
         }
 
@@ -56,30 +51,31 @@ namespace JobScheduler.Services.Scheduler
                 throw new InvalidOperationException(
                     "Cannot stop the scheduler: it is already stopped");
 
-            Task[] tasks;
-
-            lock (_sync)
-            {
-                tasks = _running.Where(x => x is not null).ToArray()!;
-            }
-
-            Task.WaitAll(tasks);
+            _semaphore.Wait(0);
         }
 
-        private void Run(IJob job, int index)
+        private async Task RunAsync(IJob job)
         {
-            while (true)
-            {
-                job.Run();
+            await _semaphore.WaitAsync();
 
-                lock (_sync)
+            try
+            {
+                while (true)
                 {
-                    if (!_jobs.TryDequeue(out job))
+                    job.Run();
+
+                    lock (_sync)
                     {
-                        _running[index] = null;
-                        return;
+                        if (!_jobs.TryDequeue(out job))
+                        {
+                            return;
+                        }
                     }
                 }
+            }
+            finally
+            {
+                _semaphore.Release();
             }
         }
     }
