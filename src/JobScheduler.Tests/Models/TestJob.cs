@@ -20,6 +20,9 @@ namespace JobScheduler.Tests.Models
 
         public State CurrentState { get; private set; } = State.Pending;
 
+        public string Name => "TestJob";
+
+        public string Description => "TestJob Description";
 
         public void Run()
         {
