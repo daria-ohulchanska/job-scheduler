@@ -18,7 +18,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\JobScheduler\JobScheduler.csproj" />
+    <ProjectReference Include="..\JobScheduler\JobScheduler.Core.csproj" />
   </ItemGroup>
 
   <ItemGroup>

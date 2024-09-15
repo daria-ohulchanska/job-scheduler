@@ -3,9 +3,13 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 17
 VisualStudioVersion = 17.10.35027.167
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "JobScheduler", "JobScheduler\JobScheduler.csproj", "{CE44F58C-B445-48C6-B706-02344E1A6531}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "JobScheduler.Core", "JobScheduler\JobScheduler.Core.csproj", "{CE44F58C-B445-48C6-B706-02344E1A6531}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "JobScheduler.Tests", "JobScheduler.Tests\JobScheduler.Tests.csproj", "{AC540C25-1896-48E1-A1BD-9E6DF01F623C}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "JobScheduler.Tests", "JobScheduler.Tests\JobScheduler.Tests.csproj", "{AC540C25-1896-48E1-A1BD-9E6DF01F623C}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "JobScheduler.Data", "JobScheduler.Data\JobScheduler.Data.csproj", "{6ABA17E4-B649-494C-AE61-87D135FF74E0}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "JobScheduler.Web", "JobScheduler.Web\JobScheduler.Web.csproj", "{0C92132B-2EBB-4CA0-B06E-C92954B1FB90}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -21,6 +25,14 @@ Global
 		{AC540C25-1896-48E1-A1BD-9E6DF01F623C}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{AC540C25-1896-48E1-A1BD-9E6DF01F623C}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{AC540C25-1896-48E1-A1BD-9E6DF01F623C}.Release|Any CPU.Build.0 = Release|Any CPU
+		{6ABA17E4-B649-494C-AE61-87D135FF74E0}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{6ABA17E4-B649-494C-AE61-87D135FF74E0}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{6ABA17E4-B649-494C-AE61-87D135FF74E0}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{6ABA17E4-B649-494C-AE61-87D135FF74E0}.Release|Any CPU.Build.0 = Release|Any CPU
+		{0C92132B-2EBB-4CA0-B06E-C92954B1FB90}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{0C92132B-2EBB-4CA0-B06E-C92954B1FB90}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{0C92132B-2EBB-4CA0-B06E-C92954B1FB90}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{0C92132B-2EBB-4CA0-B06E-C92954B1FB90}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

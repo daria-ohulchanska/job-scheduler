@@ -27,8 +27,3 @@ scheduler.Stop();
 Console.WriteLine("Scheduler stopped.");
 
 Console.WriteLine("Done!");
-
-
-
-
-
