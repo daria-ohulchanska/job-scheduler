@@ -11,6 +11,8 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "JobScheduler.Data", "JobSch
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "JobScheduler.Web", "JobScheduler.Web\JobScheduler.Web.csproj", "{0C92132B-2EBB-4CA0-B06E-C92954B1FB90}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "JobScheduler.Shared", "JobScheduler.Shared\JobScheduler.Shared.csproj", "{98CD15E1-B589-4A0E-8CEE-22B1CC391E11}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -33,6 +35,10 @@ Global
 		{0C92132B-2EBB-4CA0-B06E-C92954B1FB90}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{0C92132B-2EBB-4CA0-B06E-C92954B1FB90}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{0C92132B-2EBB-4CA0-B06E-C92954B1FB90}.Release|Any CPU.Build.0 = Release|Any CPU
+		{98CD15E1-B589-4A0E-8CEE-22B1CC391E11}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{98CD15E1-B589-4A0E-8CEE-22B1CC391E11}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{98CD15E1-B589-4A0E-8CEE-22B1CC391E11}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{98CD15E1-B589-4A0E-8CEE-22B1CC391E11}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

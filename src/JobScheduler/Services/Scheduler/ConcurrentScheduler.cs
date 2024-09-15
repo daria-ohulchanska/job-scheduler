@@ -12,8 +12,6 @@ namespace JobScheduler.Services.Scheduler
         private readonly object _sync = new();
         private readonly SemaphoreSlim _semaphore;
 
-        private readonly Queue<IJob> _jobs;
-
         private int _state = Running;
 
         public ConcurrentScheduler(int? capacity)
@@ -29,8 +27,6 @@ namespace JobScheduler.Services.Scheduler
             var degreeOfParallelism = capacity ?? Environment.ProcessorCount;
 
             _semaphore = new SemaphoreSlim(degreeOfParallelism, degreeOfParallelism);
-
-            _jobs = new();
         }
 
         public void Schedule(IJob job)
@@ -60,18 +56,7 @@ namespace JobScheduler.Services.Scheduler
 
             try
             {
-                while (true)
-                {
-                    job.Run();
-
-                    lock (_sync)
-                    {
-                        if (!_jobs.TryDequeue(out job))
-                        {
-                            return;
-                        }
-                    }
-                }
+                job.Run();
             }
             finally
             {

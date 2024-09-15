@@ -1,4 +1,4 @@
-using JobScheduler.Web.Models;
+﻿using JobScheduler.Web.Models;
 using Microsoft.AspNetCore.Mvc;
 using System.Diagnostics;
 
