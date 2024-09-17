@@ -47,7 +47,7 @@ namespace JobScheduler.Services.Scheduler
                 throw new InvalidOperationException(
                     "Cannot stop the scheduler: it is already stopped");
 
-            _semaphore.Wait(0);
+            _semaphore.Wait();  // Block until the semaphore is available, but allows ongoing jobs to finish
         }
 
         private async Task RunAsync(IJob job)
@@ -57,6 +57,10 @@ namespace JobScheduler.Services.Scheduler
             try
             {
                 job.Run();
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Job failed: {ex.Message}");
             }
             finally
             {
