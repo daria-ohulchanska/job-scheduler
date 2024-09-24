@@ -1,4 +1,8 @@
-﻿using JobScheduler.Models;
+﻿using JobScheduler.Data.Entities;
+using JobScheduler.Data.Repositories;
+using JobScheduler.Models;
+using JobScheduler.Shared.Enums;
+using System.Diagnostics;
 
 namespace JobScheduler.Services.Scheduler
 {
@@ -14,7 +18,13 @@ namespace JobScheduler.Services.Scheduler
 
         private int _state = Running;
 
-        public ConcurrentScheduler(int? capacity)
+        private IJobHistoryRepository _jobHistoryRepository;
+        private IJobRepository _jobRepository;
+
+        public ConcurrentScheduler(
+            IJobRepository repository, 
+            IJobHistoryRepository jobHistoryRepository,
+            int? capacity)
         {
             if (capacity <= 0)
                 throw new ArgumentOutOfRangeException(
@@ -24,13 +34,36 @@ namespace JobScheduler.Services.Scheduler
                 throw new ArgumentOutOfRangeException(
                     nameof(capacity), capacity, $"Cannot initialise scheduler: maximum possible capacity is {MaxCapacity}");
 
+            _jobHistoryRepository = jobHistoryRepository;
+            _jobRepository = repository;
+
             var degreeOfParallelism = capacity ?? Environment.ProcessorCount;
 
             _semaphore = new SemaphoreSlim(degreeOfParallelism, degreeOfParallelism);
         }
 
-        public void Schedule(IJob job)
+        public async Task ScheduleAsync(IJob job)
         {
+            var jobEntity = new JobEntity
+            {
+                UserId = job.UserId,
+                Id = job.Id,
+                Name = job.Name,
+                Description = job.Description,
+                Status = JobStatus.Pending
+            };
+
+            await _jobRepository.AddAsync(jobEntity);
+
+            var jobHistoryEntity = new JobHistoryEntity
+            {
+                UserId = job.UserId,
+                JobId = job.Id,
+                Status = JobStatus.Pending,
+            };
+
+            await _jobHistoryRepository.AddAsync(jobHistoryEntity);
+
             lock (_sync)
             {
                 if (_state != Running)
@@ -54,13 +87,36 @@ namespace JobScheduler.Services.Scheduler
         {
             await _semaphore.WaitAsync();
 
+            var jobHistoryEntity = new JobHistoryEntity
+            {
+                UserId = job.UserId,
+                JobId = job.Id,
+            };
+
             try
             {
-                job.Run();
+                await job.Run();
             }
             catch (Exception ex)
             {
-                Console.WriteLine($"Job failed: {ex.Message}");
+                jobHistoryEntity.Status = JobStatus.Failed;
+
+                await _jobHistoryRepository.AddAsync(jobHistoryEntity);
+                await _jobRepository.UpdateAsync(job.Id, jobHistoryEntity.Status);
+
+                Debug.WriteLine(ex.Message);
+            }
+
+            try
+            {
+                jobHistoryEntity.Status = JobStatus.Completed;
+
+                await _jobHistoryRepository.AddAsync(jobHistoryEntity);
+                await _jobRepository.UpdateAsync(job.Id, jobHistoryEntity.Status);
+            }
+            catch (Exception ex)
+            {
+                Debug.WriteLine(ex.Message);
             }
             finally
             {

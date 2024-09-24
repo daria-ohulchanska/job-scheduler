@@ -1,35 +1,40 @@
 ﻿using JobScheduler.Data.Contexts;
 using JobScheduler.Data.Entities;
-using Microsoft.EntityFrameworkCore;
+using JobScheduler.Shared.Enums;
 
 namespace JobScheduler.Data.Repositories
 {
     public class JobRepository : IJobRepository
     {
         private readonly ApplicationDbContext _context;
-        private readonly DbSet<JobEntity> _set;
 
         public JobRepository(ApplicationDbContext context)
         {
             _context = context;
-            _set = _context.Set<JobEntity>();
         }
 
         public async Task AddAsync(JobEntity entity)
         {
-            await _set.AddAsync(entity);
+            await _context.Jobs.AddAsync(entity);
             await _context.SaveChangesAsync();
         }   
 
         public async Task UpdateAsync(JobEntity entity)
         {
-            _set.Update(entity);
+            _context.Jobs.Update(entity);
             await _context.SaveChangesAsync();
         }
 
-        public Task<IEnumerable<JobEntity>> GetByUserIdAsync(Guid userId)
+        public async Task UpdateAsync(Guid id, JobStatus scheduled)
         {
-            return Task.FromResult(_set.Where(x => x.UserId == userId).AsEnumerable());
+            var entry = new JobEntity { Id = id, Status = scheduled };
+
+            _context.Jobs.Attach(entry);
+            _context.Entry(entry)
+                .Property(x => x.Status)
+                .IsModified = true;
+
+            await _context.SaveChangesAsync();
         }
     }
 }

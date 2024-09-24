@@ -11,6 +11,11 @@ namespace JobScheduler.Tests.Models
 
         public TestJob(Action? before = null, Action? after = null)
         {
+            UserId = Guid.NewGuid();
+            Id = Guid.NewGuid();
+            Name = GetType().Name;
+            Description = $"Test job {Id} for user {UserId}";
+
             _before = before;
             _after = after;
         }
@@ -20,11 +25,12 @@ namespace JobScheduler.Tests.Models
 
         public State CurrentState { get; private set; } = State.Pending;
 
-        public string Name => "TestJob";
+        public Guid Id { get; }
+        public Guid UserId { get; }
+        public string Name { get; }
+        public string Description { get;  } 
 
-        public string Description => "TestJob Description";
-
-        public void Run()
+        public async Task Run()
         {
             CurrentState = State.Running;
             Started.Set();

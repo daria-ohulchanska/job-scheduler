@@ -6,6 +6,5 @@ namespace JobScheduler.Data.Repositories
     {
         Task AddAsync(JobHistoryEntity entity);
         Task UpdateAsync(JobHistoryEntity entity);
-        Task<IEnumerable<JobHistoryEntity>> GetByUserIdAsync(Guid userId);
     }
 }

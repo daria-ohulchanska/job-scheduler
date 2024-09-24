@@ -2,9 +2,11 @@
 {
     public interface IJob
     {
+        Guid Id { get; }
+        Guid UserId { get; }
         string Name { get; }
         string Description { get; }
 
-        void Run();
+        Task Run();
     }
 }

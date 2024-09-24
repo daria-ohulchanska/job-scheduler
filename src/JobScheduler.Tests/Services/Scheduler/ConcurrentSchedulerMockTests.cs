@@ -1,6 +1,9 @@
 ﻿using FluentAssertions;
+using JobScheduler.Data.Entities;
+using JobScheduler.Data.Repositories;
 using JobScheduler.Models;
 using JobScheduler.Services.Scheduler;
+using JobScheduler.Shared.Enums;
 using Moq;
 
 namespace JobScheduler.Tests.Services.Scheduler
@@ -17,17 +20,36 @@ namespace JobScheduler.Tests.Services.Scheduler
         [Fact]
         public void Constructor_Throws_IfCapacityIsNotPositive()
         {
-            Assert.Throws<ArgumentOutOfRangeException>(() => new ConcurrentScheduler(0));
-            Assert.Throws<ArgumentOutOfRangeException>(() => new ConcurrentScheduler(-1));
+            var mockRepository = new Mock<IJobRepository>();
+            mockRepository.Setup(x => x.AddAsync(It.IsAny<JobEntity>()));
+            mockRepository.Setup(x => x.UpdateAsync(It.IsAny<JobEntity>()));
+            mockRepository.Setup(x => x.UpdateAsync(It.IsAny<Guid>(), It.IsAny<JobStatus>()));
+
+            var mockHistoryRepository= new Mock<IJobHistoryRepository>();
+            mockHistoryRepository.Setup(x => x.AddAsync(It.IsAny<JobHistoryEntity>()));
+            mockHistoryRepository.Setup(x => x.UpdateAsync(It.IsAny<JobHistoryEntity>()));
+
+            Assert.Throws<ArgumentOutOfRangeException>(() => new ConcurrentScheduler(mockRepository.Object, mockHistoryRepository.Object, 0));
+            Assert.Throws<ArgumentOutOfRangeException>(() => new ConcurrentScheduler(mockRepository.Object, mockHistoryRepository.Object, - 1));
         }
 
         [Fact]
         public void Schedule_ExecutesJobImmediately_IfCapacityIsAvailable()
         {
-            var scheduler = new ConcurrentScheduler(1);
+            var mockRepository = new Mock<IJobRepository>();
+            mockRepository.Setup(x => x.AddAsync(It.IsAny<JobEntity>()));
+            mockRepository.Setup(x => x.UpdateAsync(It.IsAny<JobEntity>()));
+            mockRepository.Setup(x => x.UpdateAsync(It.IsAny<Guid>(), It.IsAny<JobStatus>()));
+
+            var mockHistoryRepository = new Mock<IJobHistoryRepository>();
+            mockHistoryRepository.Setup(x => x.AddAsync(It.IsAny<JobHistoryEntity>()));
+            mockHistoryRepository.Setup(x => x.UpdateAsync(It.IsAny<JobHistoryEntity>()));
+
+
+            var scheduler = new ConcurrentScheduler(mockRepository.Object, mockHistoryRepository.Object, 1);
             var mockJob = CreateMockJob();
 
-            scheduler.Schedule(mockJob.Object);
+            scheduler.ScheduleAsync(mockJob.Object);
 
             Thread.Sleep(200); // Wait for the job to complete
             mockJob.Verify(job => job.Run(), Times.Once);
@@ -36,12 +58,23 @@ namespace JobScheduler.Tests.Services.Scheduler
         [Fact]
         public void Schedule_QueuesJob_IfCapacityIsNotAvailable()
         {
-            var scheduler = new ConcurrentScheduler(1);
+            var mockRepository = new Mock<IJobRepository>();
+            mockRepository.Setup(x => x.AddAsync(It.IsAny<JobEntity>()));
+            mockRepository.Setup(x => x.UpdateAsync(It.IsAny<JobEntity>()));
+            mockRepository.Setup(x => x.UpdateAsync(It.IsAny<Guid>(), It.IsAny<JobStatus>()));
+
+            var mockHistoryRepository = new Mock<IJobHistoryRepository>();
+            mockHistoryRepository.Setup(x => x.AddAsync(It.IsAny<JobHistoryEntity>()));
+            mockHistoryRepository.Setup(x => x.UpdateAsync(It.IsAny<JobHistoryEntity>()));
+
+
+            var scheduler = new ConcurrentScheduler(mockRepository.Object, mockHistoryRepository.Object, 1);
+            
             var mockJob1 = CreateMockJob();
             var mockJob2 = CreateMockJob();
 
-            scheduler.Schedule(mockJob1.Object); // This should run immediately
-            scheduler.Schedule(mockJob2.Object); // This should be queued
+            scheduler.ScheduleAsync(mockJob1.Object); // This should run immediately
+            scheduler.ScheduleAsync(mockJob2.Object); // This should be queued
 
             Thread.Sleep(50); // Wait for the first job to complete
             mockJob1.Verify(job => job.Run(), Times.Once);
@@ -54,14 +87,24 @@ namespace JobScheduler.Tests.Services.Scheduler
         [Fact]
         public void Stop_WaitsForAllRunningJobsToComplete()
         {
-            var scheduler = new ConcurrentScheduler(2);
+            var mockRepository = new Mock<IJobRepository>();
+            mockRepository.Setup(x => x.AddAsync(It.IsAny<JobEntity>()));
+            mockRepository.Setup(x => x.UpdateAsync(It.IsAny<JobEntity>()));
+            mockRepository.Setup(x => x.UpdateAsync(It.IsAny<Guid>(), It.IsAny<JobStatus>()));
+
+            var mockHistoryRepository = new Mock<IJobHistoryRepository>();
+            mockHistoryRepository.Setup(x => x.AddAsync(It.IsAny<JobHistoryEntity>()));
+            mockHistoryRepository.Setup(x => x.UpdateAsync(It.IsAny<JobHistoryEntity>()));
+
+            var scheduler = new ConcurrentScheduler(mockRepository.Object, mockHistoryRepository.Object, 2);
+            
             var mockJob1 = CreateMockJob();
             var mockJob2 = CreateMockJob();
             var mockJob3 = CreateMockJob();
 
-            scheduler.Schedule(mockJob1.Object);
-            scheduler.Schedule(mockJob2.Object);
-            scheduler.Schedule(mockJob3.Object);
+            scheduler.ScheduleAsync(mockJob1.Object);
+            scheduler.ScheduleAsync(mockJob2.Object);
+            scheduler.ScheduleAsync(mockJob3.Object);
 
             Thread.Sleep(150); // Ensure jobs have started
 
@@ -80,14 +123,25 @@ namespace JobScheduler.Tests.Services.Scheduler
         [Fact]
         public void Run_ExecutesJobsUntilQueueIsEmpty()
         {
-            var scheduler = new ConcurrentScheduler(1);
+            var mockRepository = new Mock<IJobRepository>();
+            mockRepository.Setup(x => x.AddAsync(It.IsAny<JobEntity>()));
+            mockRepository.Setup(x => x.UpdateAsync(It.IsAny<JobEntity>()));
+            mockRepository.Setup(x => x.UpdateAsync(It.IsAny<Guid>(), It.IsAny<JobStatus>()));
+
+            var mockHistoryRepository = new Mock<IJobHistoryRepository>();
+            mockHistoryRepository.Setup(x => x.AddAsync(It.IsAny<JobHistoryEntity>()));
+            mockHistoryRepository.Setup(x => x.UpdateAsync(It.IsAny<JobHistoryEntity>()));
+
+
+            var scheduler = new ConcurrentScheduler(mockRepository.Object, mockHistoryRepository.Object, 1);
+            
             var mockJob1 = CreateMockJob();
             var mockJob2 = CreateMockJob();
             var mockJob3 = CreateMockJob();
 
-            scheduler.Schedule(mockJob1.Object);
-            scheduler.Schedule(mockJob2.Object);
-            scheduler.Schedule(mockJob3.Object);
+            scheduler.ScheduleAsync(mockJob1.Object);
+            scheduler.ScheduleAsync(mockJob2.Object);
+            scheduler.ScheduleAsync(mockJob3.Object);
 
             Thread.Sleep(600); // Wait for all jobs to complete
 

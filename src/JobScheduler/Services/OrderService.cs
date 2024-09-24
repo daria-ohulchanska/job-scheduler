@@ -4,9 +4,10 @@ using JobScheduler.Services.Scheduler;
 
 namespace JobScheduler.Core.Services
 {
-    public class OrderService
+    public class OrderService : IOrderService
     {
         private readonly IScheduler _scheduler;
+
         private int order = -1;
 
         public OrderService(IScheduler scheduler)
@@ -14,10 +15,11 @@ namespace JobScheduler.Core.Services
             _scheduler = scheduler;
         }
 
-        public void Serve(Dish dish)
+        public async Task ServeAsync(Guid userId, Dish dish)
         {
-            var job = new ServeJob(++order, dish);
-            _scheduler.Schedule(job);
+            var job = new ServeJob(userId, ++order, dish);
+
+            await _scheduler.ScheduleAsync(job);
         }
     }
 }

@@ -4,7 +4,7 @@ namespace JobScheduler.Services.Scheduler
 {
     public interface IScheduler
     {
-        void Schedule(IJob job);
+        Task ScheduleAsync(IJob job);
         void Stop();
     }
 }

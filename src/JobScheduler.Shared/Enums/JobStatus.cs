@@ -3,9 +3,7 @@
     public enum JobStatus
     {
         Pending = 0,
-        Scheduled = 1,
-        Running = 2,
-        Completed = 3,
-        Failed = 4
+        Completed = 1,
+        Failed = 2
     }
 }

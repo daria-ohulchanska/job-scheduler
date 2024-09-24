@@ -1,4 +1,5 @@
 ﻿using JobScheduler.Data.Entities;
+using JobScheduler.Shared.Enums;
 
 namespace JobScheduler.Data.Repositories
 {
@@ -6,6 +7,6 @@ namespace JobScheduler.Data.Repositories
     {
         Task AddAsync(JobEntity entity);
         Task UpdateAsync(JobEntity entity);
-        Task<IEnumerable<JobEntity>> GetByUserIdAsync(Guid userId);
+        Task UpdateAsync(Guid id, JobStatus scheduled);
     }
 }
