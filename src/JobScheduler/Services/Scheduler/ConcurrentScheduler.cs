@@ -64,14 +64,11 @@ namespace JobScheduler.Services.Scheduler
 
             await _jobHistoryRepository.AddAsync(jobHistoryEntity);
 
-            lock (_sync)
-            {
-                if (_state != Running)
-                    throw new InvalidOperationException(
-                        "Cannot run a job: the scheduler is not running");
+            if (_state != Running)
+                throw new InvalidOperationException(
+                    "Cannot run a job: the scheduler is not running");
 
-                Task.Run(async () => await RunAsync(job));
-            }
+            Task.Run(async () => await RunAsync(job));
         }
 
         public void Stop()
