@@ -1,10 +1,7 @@
 using JobScheduler.Services.Scheduler;
 using JobScheduler.Tests.Models;
 using FluentAssertions;
-using JobScheduler.Data.Repositories;
 using Moq;
-using JobScheduler.Data.Entities;
-using JobScheduler.Shared.Enums;
 using JobScheduler.Core.Messaging;
 using JobScheduler.Shared.Configurations;
 using Microsoft.Extensions.Options;
@@ -14,17 +11,8 @@ namespace JobScheduler.Tests.Services.Scheduler
     public class ConcurrentSchedulerTests
     {
         [Fact]
-        public async Task StubJobTest()
+        public void StubJobTest()
         {
-            var mockRepository = new Mock<IJobRepository>();
-            mockRepository.Setup(x => x.Add(It.IsAny<JobEntity>()));
-            mockRepository.Setup(x => x.Update(It.IsAny<JobEntity>()));
-            mockRepository.Setup(x => x.UpdateStatus(It.IsAny<Guid>(), It.IsAny<JobStatus>()));
-
-            var mockHistoryRepository = new Mock<IJobHistoryRepository>();
-            mockHistoryRepository.Setup(x => x.AddAsync(It.IsAny<JobHistoryEntity>()));
-            mockHistoryRepository.Setup(x => x.UpdateAsync(It.IsAny<JobHistoryEntity>()));
-
             var settings1 = new ConcurrentSchedulerSettings { Capacity = 2 };
             IOptions<ConcurrentSchedulerSettings> options1 = Options.Create(settings1);
 
@@ -32,8 +20,6 @@ namespace JobScheduler.Tests.Services.Scheduler
             mockMessageQueuePublisher.Setup(x => x.SendMessage(It.IsAny<string>()));
 
             var scheduler = new ConcurrentScheduler(
-                    mockRepository.Object,
-                    mockHistoryRepository.Object,
                     mockMessageQueuePublisher.Object,
                     options1);
 
@@ -41,9 +27,9 @@ namespace JobScheduler.Tests.Services.Scheduler
             var job1 = new TestJob();
             var job2 = new TestJob();
 
-            await scheduler.ScheduleAsync(job0);
-            await scheduler.ScheduleAsync(job1);
-            await scheduler.ScheduleAsync(job2);
+            scheduler.Schedule(job0);
+            scheduler.Schedule(job1);
+            scheduler.Schedule(job2);
 
             job0.Started.WaitOne();
             job1.Started.WaitOne();
