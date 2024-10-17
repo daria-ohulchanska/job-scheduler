@@ -4,7 +4,8 @@ namespace JobScheduler.Data.Repositories
 {
     public interface IJobHistoryRepository
     {
-        Task AddAsync(JobHistoryEntity entity);
-        Task UpdateAsync(JobHistoryEntity entity);
+        void Add(JobHistoryEntity entity);
+        void Update(JobHistoryEntity entity);
+        Task SaveAsync();
     }
 }

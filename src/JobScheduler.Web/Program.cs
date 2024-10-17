@@ -1,9 +1,13 @@
-﻿using JobScheduler.Core.Services;
+﻿using JobScheduler.Core.BackgroundServices;
+using JobScheduler.Core.Messaging;
+using JobScheduler.Core.Services;
+using JobScheduler.Data;
 using JobScheduler.Data.Contexts;
-using JobScheduler.Data.Repositories;
 using JobScheduler.Services.Scheduler;
+using JobScheduler.Shared.Configurations;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.OpenApi.Models;
+using RabbitMQ.Client;
 
 internal class Program
 {
@@ -28,17 +32,28 @@ internal class Program
         builder.Services.AddDbContext<ApplicationDbContext>(options => 
             options.UseNpgsql(connectionString));
 
-        builder.Services.AddScoped(typeof(IJobRepository), typeof(JobRepository));
-        builder.Services.AddScoped(typeof(IJobHistoryRepository), typeof(JobStatusHistoryRepository));
+        var queueSettings = builder.Configuration.GetSection("RabbitMQ").Get<RabbitMqSettings>();
+
+        builder.Services.AddSingleton<IConnection>(sp =>
+        {
+            var factory = new ConnectionFactory
+            {
+                HostName = queueSettings.HostName,
+                UserName = queueSettings.UserName,
+                Password = queueSettings.Password
+            };
+            return factory.CreateConnection();
+        });
+
+        builder.Services.Configure<RabbitMqSettings>(builder.Configuration.GetSection("RabbitMQ"));
+        builder.Services.Configure<ConcurrentSchedulerSettings>(builder.Configuration.GetSection("ConcurrentScheduler"));
+
+        builder.Services.AddSingleton<IMessageQueuePublisher, RabbitMqPublisher>();
+        builder.Services.AddHostedService<JobStatusProcessor>();
 
         builder.Services.AddScoped(typeof(IOrderService), typeof(OrderService));
-        builder.Services.AddScoped<IScheduler>(sp =>
-        {
-            var jobRepository = sp.GetRequiredService<IJobRepository>();
-            var jobHistoryRepository = sp.GetRequiredService<IJobHistoryRepository>();
-
-            return new ConcurrentScheduler(jobRepository, jobHistoryRepository, capacity: 2);
-        });
+        builder.Services.AddSingleton(typeof(IScheduler), typeof(ConcurrentScheduler));
+        builder.Services.AddScoped(typeof(IUnitOfWork), typeof(UnitOfWork));
 
         var app = builder.Build();
 

@@ -1,9 +1,12 @@
 ﻿using FluentAssertions;
+using JobScheduler.Core.Messaging;
 using JobScheduler.Data.Entities;
 using JobScheduler.Data.Repositories;
 using JobScheduler.Models;
 using JobScheduler.Services.Scheduler;
+using JobScheduler.Shared.Configurations;
 using JobScheduler.Shared.Enums;
+using Microsoft.Extensions.Options;
 using Moq;
 
 namespace JobScheduler.Tests.Services.Scheduler
@@ -21,32 +24,62 @@ namespace JobScheduler.Tests.Services.Scheduler
         public void Constructor_Throws_IfCapacityIsNotPositive()
         {
             var mockRepository = new Mock<IJobRepository>();
-            mockRepository.Setup(x => x.AddAsync(It.IsAny<JobEntity>()));
-            mockRepository.Setup(x => x.UpdateAsync(It.IsAny<JobEntity>()));
-            mockRepository.Setup(x => x.UpdateAsync(It.IsAny<Guid>(), It.IsAny<JobStatus>()));
+            mockRepository.Setup(x => x.Add(It.IsAny<JobEntity>()));
+            mockRepository.Setup(x => x.Update(It.IsAny<JobEntity>()));
+            mockRepository.Setup(x => x.UpdateStatus(It.IsAny<Guid>(), It.IsAny<JobStatus>()));
 
             var mockHistoryRepository= new Mock<IJobHistoryRepository>();
             mockHistoryRepository.Setup(x => x.AddAsync(It.IsAny<JobHistoryEntity>()));
             mockHistoryRepository.Setup(x => x.UpdateAsync(It.IsAny<JobHistoryEntity>()));
 
-            Assert.Throws<ArgumentOutOfRangeException>(() => new ConcurrentScheduler(mockRepository.Object, mockHistoryRepository.Object, 0));
-            Assert.Throws<ArgumentOutOfRangeException>(() => new ConcurrentScheduler(mockRepository.Object, mockHistoryRepository.Object, - 1));
+            var settings1 = new ConcurrentSchedulerSettings { Capacity = 1 };
+            IOptions<ConcurrentSchedulerSettings> options1 = Options.Create(settings1);
+
+            var settings2 = new ConcurrentSchedulerSettings { Capacity = 2 };
+            IOptions<ConcurrentSchedulerSettings> options2 = Options.Create(settings2);
+
+            var mockMessageQueuePublisher = new Mock<IMessageQueuePublisher>();
+            mockMessageQueuePublisher.Setup(x => x.SendMessage(It.IsAny<string>()));
+
+            Assert.Throws<ArgumentOutOfRangeException>(() => 
+                new ConcurrentScheduler(
+                    mockRepository.Object, 
+                    mockHistoryRepository.Object, 
+                    mockMessageQueuePublisher.Object,  
+                    options1));
+
+            Assert.Throws<ArgumentOutOfRangeException>(() => 
+                new ConcurrentScheduler(
+                    mockRepository.Object, 
+                    mockHistoryRepository.Object,
+                    mockMessageQueuePublisher.Object,
+                    options2));
         }
 
         [Fact]
         public void Schedule_ExecutesJobImmediately_IfCapacityIsAvailable()
         {
             var mockRepository = new Mock<IJobRepository>();
-            mockRepository.Setup(x => x.AddAsync(It.IsAny<JobEntity>()));
-            mockRepository.Setup(x => x.UpdateAsync(It.IsAny<JobEntity>()));
-            mockRepository.Setup(x => x.UpdateAsync(It.IsAny<Guid>(), It.IsAny<JobStatus>()));
+            mockRepository.Setup(x => x.Add(It.IsAny<JobEntity>()));
+            mockRepository.Setup(x => x.Update(It.IsAny<JobEntity>()));
+            mockRepository.Setup(x => x.UpdateStatus(It.IsAny<Guid>(), It.IsAny<JobStatus>()));
 
             var mockHistoryRepository = new Mock<IJobHistoryRepository>();
             mockHistoryRepository.Setup(x => x.AddAsync(It.IsAny<JobHistoryEntity>()));
             mockHistoryRepository.Setup(x => x.UpdateAsync(It.IsAny<JobHistoryEntity>()));
 
+            var settings1 = new ConcurrentSchedulerSettings { Capacity = 1 };
+            IOptions<ConcurrentSchedulerSettings> options1 = Options.Create(settings1);
 
-            var scheduler = new ConcurrentScheduler(mockRepository.Object, mockHistoryRepository.Object, 1);
+            var mockMessageQueuePublisher = new Mock<IMessageQueuePublisher>();
+            mockMessageQueuePublisher.Setup(x => x.SendMessage(It.IsAny<string>()));
+
+            var scheduler = new ConcurrentScheduler(
+                    mockRepository.Object,
+                    mockHistoryRepository.Object,
+                    mockMessageQueuePublisher.Object,
+                    options1);
+
             var mockJob = CreateMockJob();
 
             scheduler.ScheduleAsync(mockJob.Object);
@@ -59,17 +92,26 @@ namespace JobScheduler.Tests.Services.Scheduler
         public void Schedule_QueuesJob_IfCapacityIsNotAvailable()
         {
             var mockRepository = new Mock<IJobRepository>();
-            mockRepository.Setup(x => x.AddAsync(It.IsAny<JobEntity>()));
-            mockRepository.Setup(x => x.UpdateAsync(It.IsAny<JobEntity>()));
-            mockRepository.Setup(x => x.UpdateAsync(It.IsAny<Guid>(), It.IsAny<JobStatus>()));
+            mockRepository.Setup(x => x.Add(It.IsAny<JobEntity>()));
+            mockRepository.Setup(x => x.Update(It.IsAny<JobEntity>()));
+            mockRepository.Setup(x => x.UpdateStatus(It.IsAny<Guid>(), It.IsAny<JobStatus>()));
 
             var mockHistoryRepository = new Mock<IJobHistoryRepository>();
             mockHistoryRepository.Setup(x => x.AddAsync(It.IsAny<JobHistoryEntity>()));
             mockHistoryRepository.Setup(x => x.UpdateAsync(It.IsAny<JobHistoryEntity>()));
 
+            var settings1 = new ConcurrentSchedulerSettings { Capacity = 1 };
+            IOptions<ConcurrentSchedulerSettings> options1 = Options.Create(settings1);
 
-            var scheduler = new ConcurrentScheduler(mockRepository.Object, mockHistoryRepository.Object, 1);
-            
+            var mockMessageQueuePublisher = new Mock<IMessageQueuePublisher>();
+            mockMessageQueuePublisher.Setup(x => x.SendMessage(It.IsAny<string>()));
+
+            var scheduler = new ConcurrentScheduler(
+                    mockRepository.Object,
+                    mockHistoryRepository.Object,
+                    mockMessageQueuePublisher.Object,
+                    options1);
+
             var mockJob1 = CreateMockJob();
             var mockJob2 = CreateMockJob();
 
@@ -88,16 +130,26 @@ namespace JobScheduler.Tests.Services.Scheduler
         public void Stop_WaitsForAllRunningJobsToComplete()
         {
             var mockRepository = new Mock<IJobRepository>();
-            mockRepository.Setup(x => x.AddAsync(It.IsAny<JobEntity>()));
-            mockRepository.Setup(x => x.UpdateAsync(It.IsAny<JobEntity>()));
-            mockRepository.Setup(x => x.UpdateAsync(It.IsAny<Guid>(), It.IsAny<JobStatus>()));
+            mockRepository.Setup(x => x.Add(It.IsAny<JobEntity>()));
+            mockRepository.Setup(x => x.Update(It.IsAny<JobEntity>()));
+            mockRepository.Setup(x => x.UpdateStatus(It.IsAny<Guid>(), It.IsAny<JobStatus>()));
 
             var mockHistoryRepository = new Mock<IJobHistoryRepository>();
             mockHistoryRepository.Setup(x => x.AddAsync(It.IsAny<JobHistoryEntity>()));
             mockHistoryRepository.Setup(x => x.UpdateAsync(It.IsAny<JobHistoryEntity>()));
 
-            var scheduler = new ConcurrentScheduler(mockRepository.Object, mockHistoryRepository.Object, 2);
-            
+            var settings1 = new ConcurrentSchedulerSettings { Capacity = 2 };
+            IOptions<ConcurrentSchedulerSettings> options1 = Options.Create(settings1);
+
+            var mockMessageQueuePublisher = new Mock<IMessageQueuePublisher>();
+            mockMessageQueuePublisher.Setup(x => x.SendMessage(It.IsAny<string>()));
+
+            var scheduler = new ConcurrentScheduler(
+                    mockRepository.Object,
+                    mockHistoryRepository.Object,
+                    mockMessageQueuePublisher.Object,
+                    options1);
+
             var mockJob1 = CreateMockJob();
             var mockJob2 = CreateMockJob();
             var mockJob3 = CreateMockJob();
@@ -124,17 +176,26 @@ namespace JobScheduler.Tests.Services.Scheduler
         public void Run_ExecutesJobsUntilQueueIsEmpty()
         {
             var mockRepository = new Mock<IJobRepository>();
-            mockRepository.Setup(x => x.AddAsync(It.IsAny<JobEntity>()));
-            mockRepository.Setup(x => x.UpdateAsync(It.IsAny<JobEntity>()));
-            mockRepository.Setup(x => x.UpdateAsync(It.IsAny<Guid>(), It.IsAny<JobStatus>()));
+            mockRepository.Setup(x => x.Add(It.IsAny<JobEntity>()));
+            mockRepository.Setup(x => x.Update(It.IsAny<JobEntity>()));
+            mockRepository.Setup(x => x.UpdateStatus(It.IsAny<Guid>(), It.IsAny<JobStatus>()));
 
             var mockHistoryRepository = new Mock<IJobHistoryRepository>();
             mockHistoryRepository.Setup(x => x.AddAsync(It.IsAny<JobHistoryEntity>()));
             mockHistoryRepository.Setup(x => x.UpdateAsync(It.IsAny<JobHistoryEntity>()));
 
+            var settings1 = new ConcurrentSchedulerSettings { Capacity = 1 };
+            IOptions<ConcurrentSchedulerSettings> options1 = Options.Create(settings1);
 
-            var scheduler = new ConcurrentScheduler(mockRepository.Object, mockHistoryRepository.Object, 1);
-            
+            var mockMessageQueuePublisher = new Mock<IMessageQueuePublisher>();
+            mockMessageQueuePublisher.Setup(x => x.SendMessage(It.IsAny<string>()));
+
+            var scheduler = new ConcurrentScheduler(
+                    mockRepository.Object,
+                    mockHistoryRepository.Object,
+                    mockMessageQueuePublisher.Object,
+                    options1);
+
             var mockJob1 = CreateMockJob();
             var mockJob2 = CreateMockJob();
             var mockJob3 = CreateMockJob();

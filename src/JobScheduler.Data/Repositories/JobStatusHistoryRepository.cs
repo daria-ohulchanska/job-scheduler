@@ -12,15 +12,18 @@ namespace JobScheduler.Data.Repositories
             _context = context;
         }
 
-        public async Task AddAsync(JobHistoryEntity entity)
+        public void Add(JobHistoryEntity entity)
         {
-            await _context.JobStatusHistory.AddAsync(entity);
-            await _context.SaveChangesAsync();
+            _context.JobStatusHistory.Add(entity);
         }
 
-        public async Task UpdateAsync(JobHistoryEntity entity)
+        public void Update(JobHistoryEntity entity)
         {
             _context.JobStatusHistory.Update(entity);
+        }
+
+        public async Task SaveAsync()
+        {
             await _context.SaveChangesAsync();
         }
     }

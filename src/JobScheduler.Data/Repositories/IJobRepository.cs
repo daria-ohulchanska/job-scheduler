@@ -5,8 +5,9 @@ namespace JobScheduler.Data.Repositories
 {
     public interface IJobRepository
     {
-        Task AddAsync(JobEntity entity);
-        Task UpdateAsync(JobEntity entity);
-        Task UpdateAsync(Guid id, JobStatus scheduled);
+        void Add(JobEntity entity);
+        void Update(JobEntity entity);
+        void UpdateStatus(Guid id, JobStatus status);
+        Task SaveAsync();
     }
 }
