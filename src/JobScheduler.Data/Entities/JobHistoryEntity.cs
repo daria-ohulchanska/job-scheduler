@@ -1,4 +1,5 @@
-﻿using JobScheduler.Shared.Enums;
+﻿using JobScheduler.Data.Models;
+using JobScheduler.Shared.Enums;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 
@@ -21,5 +22,9 @@ namespace JobScheduler.Data.Entities
         public JobStatus Status { get; set; }
 
         public string? ErrorMessage { get; set; }
+
+        public JobEntity Job { get; set; }
+
+        public User User { get; set; }
     }
 }

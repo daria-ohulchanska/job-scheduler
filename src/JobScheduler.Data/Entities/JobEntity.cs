@@ -22,5 +22,7 @@ namespace JobScheduler.Data.Entities
         public DateTime? ScheduledAt { get; set; }
         public DateTime? StartedAt { get; set; }
         public DateTime? CompletedAt { get; set; }
+
+        public List<JobHistoryEntity> History { get; set; }
     }
 }
