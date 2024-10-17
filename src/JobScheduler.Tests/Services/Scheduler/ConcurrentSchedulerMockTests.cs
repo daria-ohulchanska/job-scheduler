@@ -20,10 +20,10 @@ namespace JobScheduler.Tests.Services.Scheduler
         [Fact]
         public void Constructor_Throws_IfCapacityIsNotPositive()
         {
-            var settings1 = new ConcurrentSchedulerSettings { Capacity = 1 };
+            var settings1 = new ConcurrentSchedulerSettings { Capacity = -1 };
             IOptions<ConcurrentSchedulerSettings> options1 = Options.Create(settings1);
 
-            var settings2 = new ConcurrentSchedulerSettings { Capacity = 2 };
+            var settings2 = new ConcurrentSchedulerSettings { Capacity = 0 };
             IOptions<ConcurrentSchedulerSettings> options2 = Options.Create(settings2);
 
             var mockMessageQueuePublisher = new Mock<IMessageQueuePublisher>();
