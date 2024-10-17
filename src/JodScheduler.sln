@@ -9,9 +9,9 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "JobScheduler.Tests", "JobSc
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "JobScheduler.Data", "JobScheduler.Data\JobScheduler.Data.csproj", "{6ABA17E4-B649-494C-AE61-87D135FF74E0}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "JobScheduler.Web", "JobScheduler.Web\JobScheduler.Web.csproj", "{0C92132B-2EBB-4CA0-B06E-C92954B1FB90}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "JobScheduler.Web", "JobScheduler.Web\JobScheduler.Web.csproj", "{0C92132B-2EBB-4CA0-B06E-C92954B1FB90}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "JobScheduler.Shared", "JobScheduler.Shared\JobScheduler.Shared.csproj", "{98CD15E1-B589-4A0E-8CEE-22B1CC391E11}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "JobScheduler.Shared", "JobScheduler.Shared\JobScheduler.Shared.csproj", "{98CD15E1-B589-4A0E-8CEE-22B1CC391E11}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

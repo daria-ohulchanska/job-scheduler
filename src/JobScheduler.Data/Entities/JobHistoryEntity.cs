@@ -19,5 +19,7 @@ namespace JobScheduler.Data.Entities
 
         [Required]
         public JobStatus Status { get; set; }
+
+        public string? ErrorMessage { get; set; }
     }
 }

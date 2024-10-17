@@ -13,27 +13,28 @@ namespace JobScheduler.Data.Repositories
             _context = context;
         }
 
-        public async Task AddAsync(JobEntity entity)
+        public void Add(JobEntity entity)
         {
-            await _context.Jobs.AddAsync(entity);
-            await _context.SaveChangesAsync();
+            _context.Jobs.Add(entity);
         }   
 
-        public async Task UpdateAsync(JobEntity entity)
+        public void Update(JobEntity entity)
         {
             _context.Jobs.Update(entity);
-            await _context.SaveChangesAsync();
         }
 
-        public async Task UpdateAsync(Guid id, JobStatus scheduled)
+        public void UpdateStatus(Guid id, JobStatus status)
         {
-            var entry = new JobEntity { Id = id, Status = scheduled };
+            var entry = new JobEntity { Id = id, Status = status };
 
             _context.Jobs.Attach(entry);
             _context.Entry(entry)
                 .Property(x => x.Status)
                 .IsModified = true;
+        }
 
+        public async Task SaveAsync()
+        {
             await _context.SaveChangesAsync();
         }
     }

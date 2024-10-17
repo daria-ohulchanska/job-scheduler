@@ -1,8 +1,10 @@
-﻿using JobScheduler.Data.Entities;
-using JobScheduler.Data.Repositories;
+﻿using JobScheduler.Core.Messaging;
+using JobScheduler.Data.Entities;
 using JobScheduler.Models;
+using JobScheduler.Shared.Configurations;
 using JobScheduler.Shared.Enums;
-using System.Diagnostics;
+using Microsoft.Extensions.Options;
+using Newtonsoft.Json;
 
 namespace JobScheduler.Services.Scheduler
 {
@@ -16,16 +18,15 @@ namespace JobScheduler.Services.Scheduler
         private readonly object _sync = new();
         private readonly SemaphoreSlim _semaphore;
 
+        private readonly IMessageQueuePublisher _messageQueuePublisher;
+
         private int _state = Running;
 
-        private IJobHistoryRepository _jobHistoryRepository;
-        private IJobRepository _jobRepository;
-
         public ConcurrentScheduler(
-            IJobRepository repository, 
-            IJobHistoryRepository jobHistoryRepository,
-            int? capacity)
+            IMessageQueuePublisher messageQueuePublisher,
+            IOptions<ConcurrentSchedulerSettings> options)
         {
+            var capacity = options.Value.Capacity;
             if (capacity <= 0)
                 throw new ArgumentOutOfRangeException(
                     nameof(capacity), capacity, "Cannot initialise scheduler: capacity must be positive");
@@ -34,41 +35,20 @@ namespace JobScheduler.Services.Scheduler
                 throw new ArgumentOutOfRangeException(
                     nameof(capacity), capacity, $"Cannot initialise scheduler: maximum possible capacity is {MaxCapacity}");
 
-            _jobHistoryRepository = jobHistoryRepository;
-            _jobRepository = repository;
+            _messageQueuePublisher = messageQueuePublisher;
 
             var degreeOfParallelism = capacity ?? Environment.ProcessorCount;
 
             _semaphore = new SemaphoreSlim(degreeOfParallelism, degreeOfParallelism);
         }
 
-        public async Task ScheduleAsync(IJob job)
+        public void Schedule(IJob job)
         {
-            var jobEntity = new JobEntity
-            {
-                UserId = job.UserId,
-                Id = job.Id,
-                Name = job.Name,
-                Description = job.Description,
-                Status = JobStatus.Pending
-            };
-
-            await _jobRepository.AddAsync(jobEntity);
-
-            var jobHistoryEntity = new JobHistoryEntity
-            {
-                UserId = job.UserId,
-                JobId = job.Id,
-                Status = JobStatus.Pending,
-            };
-
-            await _jobHistoryRepository.AddAsync(jobHistoryEntity);
-
             if (_state != Running)
                 throw new InvalidOperationException(
                     "Cannot run a job: the scheduler is not running");
 
-            Task.Run(async () => await RunAsync(job));
+            _ = Task.Run(async() => await RunAsync(job));
         }
 
         public void Stop()
@@ -93,32 +73,20 @@ namespace JobScheduler.Services.Scheduler
             try
             {
                 await job.Run();
+
+                jobHistoryEntity.Status = JobStatus.Completed;
             }
             catch (Exception ex)
             {
                 jobHistoryEntity.Status = JobStatus.Failed;
-
-                await _jobHistoryRepository.AddAsync(jobHistoryEntity);
-                await _jobRepository.UpdateAsync(job.Id, jobHistoryEntity.Status);
-
-                Debug.WriteLine(ex.Message);
-            }
-
-            try
-            {
-                jobHistoryEntity.Status = JobStatus.Completed;
-
-                await _jobHistoryRepository.AddAsync(jobHistoryEntity);
-                await _jobRepository.UpdateAsync(job.Id, jobHistoryEntity.Status);
-            }
-            catch (Exception ex)
-            {
-                Debug.WriteLine(ex.Message);
+                jobHistoryEntity.ErrorMessage = ex.Message;
             }
             finally
             {
                 _semaphore.Release();
             }
+
+            _messageQueuePublisher.SendMessage(JsonConvert.SerializeObject(jobHistoryEntity));
         }
     }
 }
