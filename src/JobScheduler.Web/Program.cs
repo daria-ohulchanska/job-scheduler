@@ -3,8 +3,10 @@ using JobScheduler.Core.Messaging;
 using JobScheduler.Core.Services;
 using JobScheduler.Data;
 using JobScheduler.Data.Contexts;
+using JobScheduler.Data.Entities;
 using JobScheduler.Services.Scheduler;
 using JobScheduler.Shared.Configurations;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.OpenApi.Models;
 using RabbitMQ.Client;
@@ -54,6 +56,13 @@ internal class Program
         builder.Services.AddScoped(typeof(IOrderService), typeof(OrderService));
         builder.Services.AddSingleton(typeof(IScheduler), typeof(ConcurrentScheduler));
         builder.Services.AddScoped(typeof(IUnitOfWork), typeof(UnitOfWork));
+
+        builder.Services.AddAuthentication();
+        builder.Services.AddAuthorization();
+
+        builder.Services.AddIdentityCore<UserEntity>()
+            .AddEntityFrameworkStores<ApplicationDbContext>()
+            .AddApiEndpoints();
 
         var app = builder.Build();
 
