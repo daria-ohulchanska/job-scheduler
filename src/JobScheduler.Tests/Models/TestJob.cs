@@ -11,7 +11,7 @@ namespace JobScheduler.Tests.Models
 
         public TestJob(Action? before = null, Action? after = null)
         {
-            UserId = Guid.NewGuid();
+            UserId = Guid.NewGuid().ToString();
             Id = Guid.NewGuid();
             Name = GetType().Name;
             Description = $"Test job {Id} for user {UserId}";
@@ -26,7 +26,7 @@ namespace JobScheduler.Tests.Models
         public State CurrentState { get; private set; } = State.Pending;
 
         public Guid Id { get; }
-        public Guid UserId { get; }
+        public string UserId { get; }
         public string Name { get; }
         public string Description { get;  } 
 

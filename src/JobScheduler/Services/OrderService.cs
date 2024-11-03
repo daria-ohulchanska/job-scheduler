@@ -20,7 +20,7 @@ namespace JobScheduler.Core.Services
             _unitOfWork = unitOfWork;
         }
 
-        public async Task ServeAsync(Guid userId, Dish dish)
+        public async Task ServeAsync(string userId, Dish dish)
         {
             var job = new ServeJob(userId, ++_order, dish);
 

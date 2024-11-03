@@ -8,10 +8,9 @@ namespace JobScheduler.Data.Entities
     {
         [Required]
         [ForeignKey("User")]
-        public Guid UserId { get; set; }
+        public string UserId { get; set; }
 
         [Required]
-        [MaxLength(20)]
         public string Name { get; set; }
 
         public string? Description { get; set; }
@@ -23,6 +22,8 @@ namespace JobScheduler.Data.Entities
         public DateTime? StartedAt { get; set; }
         public DateTime? CompletedAt { get; set; }
 
+        [ForeignKey("JobId")]
         public List<JobHistoryEntity> History { get; set; }
+        public UserEntity User { get; set; }
     }
 }

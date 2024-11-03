@@ -14,7 +14,7 @@ namespace JobScheduler.Web.Controllers
         }
 
         [HttpPost("serve")]
-        public async Task<IActionResult> Serve(Guid userId, Dish dish)
+        public async Task<IActionResult> Serve(string userId, Dish dish)
         {
             await _orderService.ServeAsync(userId, dish);
             return Ok();

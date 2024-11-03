@@ -9,7 +9,7 @@ namespace JobScheduler.Models
         private readonly Dish _dish;
         private readonly TimeSpan _duration;
 
-        public ServeJob(Guid userId, int order, Dish dish, string? name = null, string? description = null)
+        public ServeJob(string userId, int order, Dish dish, string? name = null, string? description = null)
         {
             Id = Guid.NewGuid();
             UserId = userId;
@@ -22,7 +22,7 @@ namespace JobScheduler.Models
         }
 
         public Guid Id { get; }
-        public Guid UserId { get; }
+        public string UserId { get; }
         public string Name { get; }
         public string Description { get; }
 

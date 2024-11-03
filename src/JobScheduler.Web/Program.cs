@@ -76,6 +76,8 @@ internal class Program
         app.UseHttpsRedirection();
         app.UseStaticFiles();
 
+        app.MapIdentityApi<UserEntity>();
+
         app.UseRouting();
 
         app.UseAuthorization();

@@ -1,5 +1,4 @@
-﻿using JobScheduler.Data.Models;
-using JobScheduler.Shared.Enums;
+﻿using JobScheduler.Shared.Enums;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 
@@ -13,7 +12,7 @@ namespace JobScheduler.Data.Entities
 
         [Required]
         [ForeignKey("User")]
-        public Guid UserId { get; set; }
+        public string UserId { get; set; }
 
         [Required]
         public Guid TransactionId { get; set; }
@@ -25,6 +24,6 @@ namespace JobScheduler.Data.Entities
 
         public JobEntity Job { get; set; }
 
-        public User User { get; set; }
+        public UserEntity User { get; set; }
     }
 }

@@ -1,14 +1,8 @@
-﻿using System.ComponentModel.DataAnnotations;
+﻿using Microsoft.AspNetCore.Identity;
 
 namespace JobScheduler.Data.Entities
 {
-    public class UserEntity : Entity
+    public class UserEntity : IdentityUser
     {
-        [Required]
-        [MaxLength(20)]
-        public string Username { get; set; }
-        [Required]
-        [MaxLength(20)]
-        public string Password { get; set; }
     }
 }
