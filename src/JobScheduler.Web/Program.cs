@@ -1,9 +1,9 @@
-﻿using JobScheduler.Core.BackgroundServices;
-using JobScheduler.Core.Messaging;
+﻿using JobScheduler.Core.Messaging;
 using JobScheduler.Core.Services;
 using JobScheduler.Data;
 using JobScheduler.Data.Contexts;
 using JobScheduler.Data.Entities;
+using JobScheduler.Data.Repositories;
 using JobScheduler.Services.Scheduler;
 using JobScheduler.Shared.Configurations;
 using Microsoft.AspNetCore.Identity;
@@ -44,6 +44,7 @@ internal class Program
                 UserName = queueSettings.UserName,
                 Password = queueSettings.Password
             };
+            
             return factory.CreateConnection();
         });
 
@@ -51,10 +52,11 @@ internal class Program
         builder.Services.Configure<ConcurrentSchedulerSettings>(builder.Configuration.GetSection("ConcurrentScheduler"));
 
         builder.Services.AddSingleton<IMessageQueuePublisher, RabbitMqPublisher>();
-        builder.Services.AddHostedService<JobStatusProcessor>();
 
         builder.Services.AddScoped(typeof(IOrderService), typeof(OrderService));
         builder.Services.AddSingleton(typeof(IScheduler), typeof(ConcurrentScheduler));
+        builder.Services.AddScoped(typeof(IJobRepository), typeof(JobRepository));
+        builder.Services.AddScoped(typeof(IJobHistoryRepository), typeof(IJobHistoryRepository));
         builder.Services.AddScoped(typeof(IUnitOfWork), typeof(UnitOfWork));
 
         builder.Services.AddAuthentication();
@@ -84,18 +86,20 @@ internal class Program
 
         app.UseHttpsRedirection();
         app.UseStaticFiles();
-
-        app.MapIdentityApi<UserEntity>();
-
+        
         app.UseRouting();
 
+        app.UseAuthentication();
         app.UseAuthorization();
+
+        app.MapIdentityApi<UserEntity>();
 
         app.MapControllerRoute(
             name: "default",
             pattern: "{controller=Home}/{action=Index}/{id?}");
 
-        app.MapControllers();
+        app.MapControllers()
+            .RequireAuthorization();
 
         app.Run();
     }

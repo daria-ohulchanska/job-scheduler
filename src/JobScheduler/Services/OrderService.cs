@@ -24,7 +24,7 @@ namespace JobScheduler.Core.Services
         {
             var job = new ServeJob(userId, ++_order, dish);
 
-            using var transaction = _unitOfWork.Context.Database.BeginTransaction();
+            await using var transaction = await _unitOfWork.Context.Database.BeginTransactionAsync();
 
             var jobEntity = new JobEntity
             {
