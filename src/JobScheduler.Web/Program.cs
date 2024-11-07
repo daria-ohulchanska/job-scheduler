@@ -1,4 +1,4 @@
-﻿using JobScheduler.Core.Messaging;
+using JobScheduler.Core.Messaging;
 using JobScheduler.Core.Services;
 using JobScheduler.Data;
 using JobScheduler.Data.Contexts;
@@ -48,6 +48,7 @@ internal class Program
             return factory.CreateConnection();
         });
 
+        builder.Services.AddRazorPages();
         builder.Services.Configure<RabbitMqSettings>(builder.Configuration.GetSection("RabbitMQ"));
         builder.Services.Configure<ConcurrentSchedulerSettings>(builder.Configuration.GetSection("ConcurrentScheduler"));
 
@@ -56,15 +57,19 @@ internal class Program
         builder.Services.AddScoped(typeof(IOrderService), typeof(OrderService));
         builder.Services.AddSingleton(typeof(IScheduler), typeof(ConcurrentScheduler));
         builder.Services.AddScoped(typeof(IJobRepository), typeof(JobRepository));
-        builder.Services.AddScoped(typeof(IJobHistoryRepository), typeof(IJobHistoryRepository));
+        builder.Services.AddScoped(typeof(IJobHistoryRepository), typeof(JobStatusHistoryRepository));
         builder.Services.AddScoped(typeof(IUnitOfWork), typeof(UnitOfWork));
 
         builder.Services.AddAuthentication();
-        builder.Services.AddAuthorization();
-
-        builder.Services.AddIdentityCore<UserEntity>()
-            .AddEntityFrameworkStores<ApplicationDbContext>()
-            .AddApiEndpoints();
+        
+        builder.Services.AddDefaultIdentity<IdentityUser>(options =>
+            {
+                options.SignIn.RequireConfirmedAccount = true; 
+                options.Password.RequiredLength = 8; 
+                options.Password.RequireNonAlphanumeric = false; 
+                options.Password.RequireDigit = false; 
+            })
+            .AddEntityFrameworkStores<ApplicationDbContext>();
 
         var app = builder.Build();
 
@@ -88,16 +93,18 @@ internal class Program
         app.UseStaticFiles();
         
         app.UseRouting();
-
+        
         app.UseAuthentication();
         app.UseAuthorization();
 
-        app.MapIdentityApi<UserEntity>();
+        app.MapIdentityApi<IdentityUser>();
+
+        app.MapRazorPages();
 
         app.MapControllerRoute(
             name: "default",
             pattern: "{controller=Home}/{action=Index}/{id?}");
-
+        
         app.MapControllers()
             .RequireAuthorization();
 

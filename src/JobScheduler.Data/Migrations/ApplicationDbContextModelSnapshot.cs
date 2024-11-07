@@ -61,7 +61,7 @@ namespace JobScheduler.Data.Migrations
 
                     b.HasIndex("UserId");
 
-                    b.ToTable("Jobs");
+                    b.ToTable("Jobs", (string)null);
                 });
 
             modelBuilder.Entity("JobScheduler.Data.Entities.JobHistoryEntity", b =>
@@ -98,7 +98,7 @@ namespace JobScheduler.Data.Migrations
 
                     b.HasIndex("UserId");
 
-                    b.ToTable("JobStatusHistory");
+                    b.ToTable("JobStatusHistory", (string)null);
                 });
 
             modelBuilder.Entity("JobScheduler.Data.Entities.UserEntity", b =>

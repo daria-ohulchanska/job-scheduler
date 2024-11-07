@@ -1,6 +1,7 @@
 ﻿using JobScheduler.Shared.Enums;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
+using Microsoft.AspNetCore.Identity;
 
 namespace JobScheduler.Data.Entities
 {
@@ -24,6 +25,6 @@ namespace JobScheduler.Data.Entities
 
         [ForeignKey("JobId")]
         public List<JobHistoryEntity> History { get; set; }
-        public UserEntity User { get; set; }
+        public IdentityUser User { get; set; }
     }
 }

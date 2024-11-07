@@ -1,10 +1,11 @@
 ﻿using JobScheduler.Data.Entities;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
 
 namespace JobScheduler.Data.Contexts
 {
-    public class ApplicationDbContext : IdentityDbContext<UserEntity>
+    public class ApplicationDbContext : IdentityDbContext<IdentityUser>
     {
         public ApplicationDbContext(DbContextOptions<ApplicationDbContext> options)
             : base(options)

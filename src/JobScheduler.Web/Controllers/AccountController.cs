@@ -1,5 +1,4 @@
 ﻿using JobScheduler.Core.Authentication;
-using JobScheduler.Data.Entities;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 
@@ -7,12 +6,12 @@ namespace JobScheduler.Web.Controllers;
 
 public class AccountController : Controller
 {
-    private readonly UserManager<UserEntity> _userManager;
-    private readonly SignInManager<UserEntity> _signInManager;
+    private readonly UserManager<IdentityUser> _userManager;
+    private readonly SignInManager<IdentityUser> _signInManager;
 
     public AccountController(
-        UserManager<UserEntity> userManager, 
-        SignInManager<UserEntity> signInManager)
+        UserManager<IdentityUser> userManager, 
+        SignInManager<IdentityUser> signInManager)
     {
         _userManager = userManager;
         _signInManager = signInManager;
@@ -27,12 +26,10 @@ public class AccountController : Controller
     {
         if (ModelState.IsValid)
         {
-            var user = new UserEntity
+            var user = new IdentityUser()
             {
                 UserName = request.Email, 
                 Email = request.Email, 
-                Name = request.Name, 
-                Surname = request.Surname
             };
             
             var result = await _userManager.CreateAsync(user, request.Password);
