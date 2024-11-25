@@ -20,11 +20,11 @@ namespace JobScheduler.Core.Services
             _unitOfWork = unitOfWork;
         }
 
-        public async Task ServeAsync(Guid userId, Dish dish)
+        public async Task ServeAsync(string userId, Dish dish)
         {
             var job = new ServeJob(userId, ++_order, dish);
 
-            using var transaction = _unitOfWork.Context.Database.BeginTransaction();
+            await using var transaction = await _unitOfWork.Context.Database.BeginTransactionAsync();
 
             var jobEntity = new JobEntity
             {
