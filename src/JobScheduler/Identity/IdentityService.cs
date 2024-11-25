@@ -9,19 +9,21 @@ namespace JobScheduler.Core.Identity;
 
 public class IdentityService : IIdentityService
 {
+    //TODO: Solve the problem with NuGet packages to use SignInManager.
+    
     private readonly UserManager<IdentityUser> _userManager;
-    private readonly SignInManager<IdentityUser> _signInManager;
+    //private readonly SignInManager<IdentityUser> _signInManager;
     private readonly ITokenService _tokenService;
     private readonly AuthenticationSettings _authentication;
 
     public IdentityService(
         UserManager<IdentityUser> userManager,
-        SignInManager<IdentityUser> signInManager,
+        //SignInManager<IdentityUser> signInManager,
         ITokenService tokenService,
         IOptions<AuthenticationSettings> options)
     {
         _userManager = userManager;
-        _signInManager = signInManager;
+        //_signInManager = signInManager;
         _tokenService = tokenService;
         _authentication = options.Value;
     }
@@ -40,11 +42,11 @@ public class IdentityService : IIdentityService
             throw new Exception("User not found");
         }
         
-        var result = await _signInManager.PasswordSignInAsync(user, password, true, false);
+        /*var result = await _signInManager.PasswordSignInAsync(user, password, true, false);
         if (!result.Succeeded)
         {
             //Handle invalid PasswordSignIn
-        }
+        }*/
         
         var roles = await _userManager.GetRolesAsync(user);
         var tokens = _tokenService.GenerateTokens(user.Id, email, roles);
@@ -92,7 +94,7 @@ public class IdentityService : IIdentityService
             throw new Exception("User not found");
         }
 
-        await _signInManager.SignOutAsync();
+        //await _signInManager.SignOutAsync();
         await _userManager.RemoveAuthenticationTokenAsync(
             user, 
             _authentication.Issuer, 
