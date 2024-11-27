@@ -8,7 +8,7 @@ FROM mcr.microsoft.com/dotnet/sdk:8.0 AS build
 ARG BUILD_CONFIGURATION=Release
 WORKDIR /src
 COPY ["JobScheduler.Web/JobScheduler.Web.csproj", "JobScheduler.Web/"]
-COPY ["JobScheduler/JobScheduler.Core.csproj", "JobScheduler/"]
+COPY ["JobScheduler.Core/JobScheduler.Core.csproj", "JobScheduler/"]
 COPY ["JobScheduler.Data/JobScheduler.Data.csproj", "JobScheduler.Data/"]
 COPY ["JobScheduler.Shared/JobScheduler.Shared.csproj", "JobScheduler.Shared/"]
 RUN dotnet restore "JobScheduler.Web/JobScheduler.Web.csproj"
