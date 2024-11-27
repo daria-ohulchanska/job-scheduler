@@ -1,6 +1,6 @@
 ﻿using JobScheduler.Core.Models;
-using JobScheduler.Data;
 using JobScheduler.Data.Entities;
+using JobScheduler.Data.Repositories;
 using JobScheduler.Services.Scheduler;
 using JobScheduler.Shared.Enums;
 

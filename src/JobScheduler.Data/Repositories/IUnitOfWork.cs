@@ -1,7 +1,6 @@
 ﻿using JobScheduler.Data.Contexts;
-using JobScheduler.Data.Repositories;
 
-namespace JobScheduler.Data
+namespace JobScheduler.Data.Repositories
 {
     public interface IUnitOfWork
     {
