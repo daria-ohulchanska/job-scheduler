@@ -1,4 +1,4 @@
-﻿namespace JobScheduler.Models
+﻿namespace JobScheduler.Core.Models
 {
     public interface IJob
     {

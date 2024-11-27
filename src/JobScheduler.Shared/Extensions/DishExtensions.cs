@@ -1,5 +1,5 @@
-﻿using JobScheduler.Core.Enums;
-using JobScheduler.Shared.Constants;
+﻿using JobScheduler.Shared.Constants;
+using JobScheduler.Shared.Enums;
 
 namespace JobScheduler.Shared.Extensions
 {

@@ -1,4 +1,4 @@
-﻿using JobScheduler.Core.Enums;
+﻿using JobScheduler.Shared.Enums;
 
 namespace JobScheduler.Core.Services
 {

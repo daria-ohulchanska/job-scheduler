@@ -1,7 +1,7 @@
-﻿using JobScheduler.Core.Enums;
+﻿using JobScheduler.Shared.Enums;
 using JobScheduler.Shared.Extensions;
 
-namespace JobScheduler.Models
+namespace JobScheduler.Core.Models
 {
     public class ServeJob : IJob
     {

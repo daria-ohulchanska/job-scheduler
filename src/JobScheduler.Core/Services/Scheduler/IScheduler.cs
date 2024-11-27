@@ -1,4 +1,4 @@
-﻿using JobScheduler.Models;
+﻿using JobScheduler.Core.Models;
 
 namespace JobScheduler.Services.Scheduler
 {

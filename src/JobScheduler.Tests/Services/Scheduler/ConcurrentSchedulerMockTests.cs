@@ -1,6 +1,6 @@
 ﻿using FluentAssertions;
 using JobScheduler.Core.Messaging;
-using JobScheduler.Models;
+using JobScheduler.Core.Models;
 using JobScheduler.Services.Scheduler;
 using JobScheduler.Shared.Configurations;
 using Microsoft.Extensions.Options;

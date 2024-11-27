@@ -1,6 +1,6 @@
 ﻿using JobScheduler.Core.Messaging;
+using JobScheduler.Core.Models;
 using JobScheduler.Data.Entities;
-using JobScheduler.Models;
 using JobScheduler.Shared.Configurations;
 using JobScheduler.Shared.Enums;
 using Microsoft.Extensions.Options;

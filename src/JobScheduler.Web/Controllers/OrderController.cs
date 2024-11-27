@@ -1,5 +1,5 @@
-﻿using JobScheduler.Core.Enums;
-using JobScheduler.Core.Services;
+﻿using JobScheduler.Core.Services;
+using JobScheduler.Shared.Enums;
 using Microsoft.AspNetCore.Mvc;
 
 namespace JobScheduler.Web.Controllers
