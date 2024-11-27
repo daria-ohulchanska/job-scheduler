@@ -6,6 +6,7 @@ using JobScheduler.Data.Contexts;
 using JobScheduler.Data.Repositories;
 using JobScheduler.Services.Scheduler;
 using JobScheduler.Shared.Configurations;
+using JobScheduler.Web.Identity;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
