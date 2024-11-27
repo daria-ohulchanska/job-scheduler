@@ -10,7 +10,7 @@ jobs:
 
     defaults:
         run:
-          working-directory: ./scr
+          working-directory: scr
         
     steps:
     - uses: actions/checkout@v4
