@@ -1,7 +1,6 @@
 using JobScheduler.Core.Identity;
 using JobScheduler.Core.Messaging;
 using JobScheduler.Core.Services;
-using JobScheduler.Data;
 using JobScheduler.Data.Contexts;
 using JobScheduler.Data.Repositories;
 using JobScheduler.Services.Scheduler;
@@ -16,7 +15,7 @@ using RabbitMQ.Client;
 
 internal class Program
 {
-    private static void Main(string[] args)
+    public static void Main(string[] args)
     {
         var builder = WebApplication.CreateBuilder(args);
 
@@ -27,7 +26,7 @@ internal class Program
         {
             c.SwaggerDoc("v1", new OpenApiInfo
             {
-                Title = "Sheduler",
+                Title = "Scheduler",
                 Version = "v1"
             });
         });
@@ -37,8 +36,10 @@ internal class Program
         builder.Services.AddDbContext<ApplicationDbContext>(options => 
             options.UseNpgsql(connectionString));
 
-        var queueSettings = builder.Configuration.GetSection("RabbitMQ").Get<RabbitMqSettings>();
-
+        var queueSettings = builder.Configuration.GetRequiredSection("RabbitMQ").Get<RabbitMqSettings>();
+        if (queueSettings == null)
+            throw new Exception("Missing RabbitMQ configuration");
+        
         builder.Services.AddSingleton<IConnection>(_ =>
         {
             var factory = new ConnectionFactory
@@ -75,7 +76,7 @@ internal class Program
         
         builder.Services.AddSingleton(typeof(IMessageQueuePublisher), typeof(RabbitMqPublisher));
         builder.Services.AddSingleton(typeof(IScheduler), typeof(ConcurrentScheduler));
-        builder.Services.AddScoped(typeof(IOrderService), typeof(OrderService));
+        builder.Services.AddScoped(typeof(IJobService), typeof(JobService));
         builder.Services.AddScoped(typeof(IJobRepository), typeof(JobRepository));
         builder.Services.AddScoped(typeof(IJobHistoryRepository), typeof(JobStatusHistoryRepository));
         builder.Services.AddScoped(typeof(IUnitOfWork), typeof(UnitOfWork));
@@ -83,6 +84,8 @@ internal class Program
         builder.Services.AddScoped(typeof(ITokenService), typeof(TokenService));
         
         var authSettings = builder.Configuration.GetSection("Authentication").Get<AuthenticationSettings>();
+        if (authSettings == null)
+            throw new Exception("Missing Authentication configuration");
         
         builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
             .AddJwtBearer(options =>

@@ -6,22 +6,22 @@ using JobScheduler.Shared.Enums;
 
 namespace JobScheduler.Core.Services
 {
-    public class OrderService : IOrderService
+    public class JobService : IJobService
     {
         private readonly IScheduler _scheduler;
         private readonly IUnitOfWork _unitOfWork;
 
         private int _order = -1;
 
-        public OrderService(IScheduler scheduler, IUnitOfWork unitOfWork)
+        public JobService(IScheduler scheduler, IUnitOfWork unitOfWork)
         {
             _scheduler = scheduler;
             _unitOfWork = unitOfWork;
         }
 
-        public async Task ServeAsync(string userId, Dish dish)
+        public async Task ScheduleAsync(string userId, JobType jobType)
         {
-            var job = new ServeJob(userId, ++_order, dish);
+            var job = new ServeJob(userId, ++_order, jobType);
 
             await using var transaction = await _unitOfWork.Context.Database.BeginTransactionAsync();
 
